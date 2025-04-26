@@ -218,4 +218,143 @@ listener 1883</code></pre>
   <li>Verifique se as bibliotecas <code>WiFi</code> e <code>PubSubClient</code> aparecem na lista.</li>
 </ul>
 
+<h1>Conexão da ESP32 ao PC e Comunicação com a Raspberry Pi (Broker MQTT)</h1>
 
+<h2>1️-Conectar a ESP32 ao PC:</h2>
+<ul>
+  <li>Use um cabo USB de dados (não apenas carregamento!) e conecte sua placa ESP32 ao seu notebook.</li>
+  <li>Abra a Arduino IDE.</li>
+  <li>No menu, vá em:
+    <pre><code>Ferramentas &gt; Placa &gt; ESP32 Arduino &gt; Selecione "ESP32 Dev Module"</code></pre>
+  </li>
+  <li>Depois configure:
+    <pre><code>Ferramentas &gt; Porta &gt; (Selecione a porta COM que aparecer relacionada à ESP32)</code></pre>
+  </li>
+</ul>
+
+<h2>2️-Importante: Botão BOOT e RESET (EN):</h2>
+<ul>
+  <li>Quando você clicar no botão <strong>Upload</strong> na Arduino IDE para enviar o código:
+    <ul>
+      <li>Se aparecer a mensagem <code>Connecting....._____.....</code> no terminal, pressione e segure o botão <strong>BOOT</strong> da ESP32 até a IDE começar a carregar o programa.</li>
+      <li>Assim que o upload terminar, você pode soltar o botão BOOT.</li>
+    </ul>
+  </li>
+  <li>Se o código travar ou a ESP32 não responder depois do upload, pressione rapidamente o botão <strong>EN</strong> (ou RESET) para reiniciar a placa.</li>
+</ul>
+
+<h2>3️-Configuração de Rede:</h2>
+<ul>
+  <li>Certifique-se que:
+    <ul>
+      <li>O seu notebook está conectado na mesma rede Wi-Fi que a Raspberry Pi.</li>
+      <li>A Raspberry Pi tem IP fixo ou você saiba o IP dela (neste exemplo: <code>192.168.0.175</code>).</li>
+      <li>O broker MQTT (Mosquitto) já está instalado e rodando na Raspberry Pi.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2>4️-Carregar o Código na ESP32:</h2>
+<ul>
+  <li>Na Arduino IDE, cole o seguinte código:</li>
+</ul>
+
+<ul>
+  <li>No Arduino IDE, cole o código que está neste repositório</li>
+</ul>
+
+<ul>
+  <li>Depois clique no botão <strong>Upload</strong> para enviar o código para a ESP32.</li>
+</ul>
+
+<h2>5️-Funcionamento do Código:</h2>
+<ul>
+  <li>O ESP32 irá se conectar à rede Wi-Fi usando o SSID <code>iot</code> e a senha <code>iotsenai502</code>.</li>
+  <li>Em seguida, tentará se conectar ao Broker MQTT (Mosquitto) no IP <code>192.168.0.175</code> na porta <code>1883</code>.</li>
+  <li>Quando conectado, o ESP32 se inscreve no tópico:
+    <pre><code>grupo7/chat</code></pre>
+  </li>
+  <li>Se o ESP32 receber a mensagem:
+    <ul>
+      <li><code>ligar_led</code> ➔ Ele liga o LED conectado ao pino GPIO 4.</li>
+      <li><code>desligar_led</code> ➔ Ele desliga o LED.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2>6️-Como Testar o Funcionamento:</h2>
+<ul>
+  <li>No terminal da Raspberry Pi, envie mensagens MQTT:
+    <pre><code>mosquitto_pub -h localhost -t grupo7/chat -m "ligar_led"</code></pre>
+    (Isso liga o LED)
+  </li>
+  <li>Para desligar o LED:
+    <pre><code>mosquitto_pub -h localhost -t grupo7/chat -m "desligar_led"</code></pre>
+  </li>
+</ul>
+
+<h2>7️-Observações Importantes:</h2>
+<ul>
+  <li>Se houver autenticação no Mosquitto (usuário e senha), você precisa modificar o código da ESP32 para usar <code>client.connect("ESP32Sub", "usuario", "senha");</code></li>
+  <li>Certifique-se que a porta <code>1883</code> não está bloqueada no roteador/firewall.</li>
+  <li>Use um resistor de 220Ω a 330Ω entre o pino GPIO4 e o LED para proteger o circuito.</li>
+</ul>
+
+<h2>8️-Testar via Monitor Serial da Arduino IDE (e Ligar/Desligar LED)</h2>
+<ul>
+  <li>Abra o <strong>Monitor Serial</strong> na Arduino IDE (ícone de lupa no canto superior direito).</li>
+  <li>Velocidade de comunicação: <strong>115200 bauds</strong>.</li>
+  <li>Observe as mensagens no terminal:
+    <ul>
+      <li>Conexão com a rede Wi-Fi.</li>
+      <li>Conexão com o broker MQTT (Mosquitto).</li>
+      <li>Mensagens recebidas do tópico <code>grupo7/chat</code>.</li>
+    </ul>
+  </li>
+  <li><strong>Envio Manual:</strong> você pode simular a chegada de comandos diretamente pelo Monitor Serial!</li>
+  <li>Para isso, vá no campo de entrada do Monitor Serial, digite o comando desejado e pressione ENTER.</li>
+  <li>Exemplos:
+    <ul>
+      <li>Digite <code>ligar_led</code> ➔ O LED irá acender.</li>
+      <li>Digite <code>desligar_led</code> ➔ O LED irá apagar.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2>Fim do projeto!</h2>
+
+<i><p>Com este projeto, concluímos a criação de um sistema completo de comunicação IoT utilizando:</p>
+<ul>
+  <li><strong>ESP32</strong> para a conexão Wi-Fi e controle do LED.</li>
+  <li><strong>Raspberry Pi</strong> como broker MQTT com o servidor Mosquitto.</li>
+  <li><strong>Arduino IDE</strong> para programar e interagir com a ESP32.</li>
+</ul>
+
+<p>Foram abordados conceitos importantes como:</p>
+<ul>
+  <li>Conexão da ESP32 ao Wi-Fi.</li>
+  <li>Instalação e configuração do broker Mosquitto na Raspberry Pi.</li>
+  <li>Comunicação via protocolo MQTT (Publicação/Assinatura de mensagens).</li>
+  <li>Controle de dispositivos físicos (LED) de maneira remota.</li>
+  <li>Envio de comandos tanto via Raspberry Pi quanto diretamente pelo Monitor Serial da IDE.</li>
+</ul>
+
+<h3>O que aprendemos na prática:</h3>
+<ul>
+  <li>Instalar e configurar sistemas no Raspberry Pi (sistema operacional e Mosquitto).</li>
+  <li>Programar a ESP32 para atuar como cliente MQTT.</li>
+  <li>Montar circuitos simples com LED e resistores.</li>
+  <li>Resolver problemas de conexão entre dispositivos.</li>
+  <li>Utilizar o Arduino IDE para testes rápidos e monitoramento.</li>
+</ul>
+
+<h3>Próximos passos sugeridos:</h3>
+<ul>
+  <li>Adicionar autenticação mais segura no Mosquitto (TLS, certificados).</li>
+  <li>Controlar vários LEDs ou até outros dispositivos (relés, motores, etc.).</li>
+  <li>Integrar com sistemas de automação residencial (Home Assistant, Node-RED).</li>
+  <li>Criar interfaces gráficas para controle (aplicativos ou páginas web).</li>
+</ul>
+
+<p><strong>Parabéns!</strong>Você agora tem uma base sólida para criar projetos de Internet das Coisas (IoT) utilizando ESP32 e Raspberry Pi!</p>
+</i>
